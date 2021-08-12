@@ -8,6 +8,7 @@
     android:orientation="vertical"
     tools:context=".screens.post.PostDetailActivity">
 
+    <include layout="@layout/toolbar_post_list"/>
 
     <TextView
         android:id="@+id/textView"

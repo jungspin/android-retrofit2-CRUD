@@ -9,13 +9,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.cos.retrofitex03.R;
 import com.cos.retrofitex03.controller.CMRespDTO;
 import com.cos.retrofitex03.controller.UserController;
 import com.cos.retrofitex03.model.User;
 import com.cos.retrofitex03.util.InitSettings;
-import com.cos.retrofitex03.util.MyDialogFragment;
+import com.cos.retrofitex03.util.JoinDialogFragment;
 import com.cos.retrofitex03.util.MyToast;
 
 import retrofit2.Call;
@@ -31,6 +32,7 @@ public class JoinActivity extends AppCompatActivity implements InitSettings {
 
     private EditText tfUsername, tfPassword, tfEmail;
     private Button btnJoin;
+    private TextView tvLogin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,11 +49,19 @@ public class JoinActivity extends AppCompatActivity implements InitSettings {
         tfPassword = findViewById(R.id.tfPassword);
         tfEmail = findViewById(R.id.tfEmail);
         btnJoin = findViewById(R.id.btnJoin);
+        tvLogin = findViewById(R.id.tvLogin);
 
     }
 
     @Override
     public void initLr() {
+        tvLogin.setOnClickListener(v->{
+            Intent intent = new Intent(
+                    mContext, LoginActivity.class
+            );
+            startActivity(intent);
+        });
+
         btnJoin.setOnClickListener(v->{
             String username = tfUsername.getText().toString();
             String password = tfPassword.getText().toString();
@@ -73,16 +83,14 @@ public class JoinActivity extends AppCompatActivity implements InitSettings {
                         Intent intent = new Intent(mContext, LoginActivity.class);
                         startActivity(intent);
                     } else {
-                        MyToast myToast = new MyToast();
-                        myToast.toast(mContext, "다시 시도해주세요");
+                        MyToast.toast(mContext, response.body().getMsg());
                     }
                 }
 
                 @Override
                 public void onFailure(Call<CMRespDTO> call, Throwable t) {
                     Log.d(TAG, "onResponse: 통신 실패  : "  + t);
-                    MyToast myToast = new MyToast();
-                    myToast.toast(mContext, "다시 시도해주세요");
+                    MyToast.toast(mContext, "오류 발생. 다시 시도해주세요");
                 }
             });
         });
@@ -96,7 +104,7 @@ public class JoinActivity extends AppCompatActivity implements InitSettings {
 
     public void showNoticeDialog() {
         // Create an instance of the dialog fragment and show it
-        DialogFragment dialog = new MyDialogFragment();
+        DialogFragment dialog = new JoinDialogFragment();
         dialog.show(getSupportFragmentManager(), "NoticeDialogFragment");
     }
 }

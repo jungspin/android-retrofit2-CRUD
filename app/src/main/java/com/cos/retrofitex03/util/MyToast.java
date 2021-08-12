@@ -7,7 +7,7 @@ public class MyToast {
 
 
 
-    public void toast(Context mContext, CharSequence text){
+    public static void toast(Context mContext, CharSequence text){
 
         int duration = Toast.LENGTH_SHORT;
 

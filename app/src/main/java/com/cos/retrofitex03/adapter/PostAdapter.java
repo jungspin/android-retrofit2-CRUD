@@ -1,6 +1,9 @@
 package com.cos.retrofitex03.adapter;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,16 +13,33 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cos.retrofitex03.R;
+import com.cos.retrofitex03.controller.CMRespDTO;
+import com.cos.retrofitex03.controller.PostController;
 import com.cos.retrofitex03.model.Post;
+import com.cos.retrofitex03.screens.post.PostDetailActivity;
+import com.cos.retrofitex03.screens.post.PostListActivity;
+import com.cos.retrofitex03.util.MySharedPreferences;
+import com.cos.retrofitex03.util.MyToast;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder> {
 
     private static final String TAG = "PostAdapter";
 
+    private PostListActivity mContext;
+    private PostController postController = new PostController();
     private List<Post> postList = new ArrayList<>();
+
+    public PostAdapter(PostListActivity mContext){
+        this.mContext = mContext;
+    }
 
 
     @NonNull
@@ -37,6 +57,33 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder> 
     public void onBindViewHolder(@NonNull PostAdapter.MyViewHolder holder, int position) {
         Post post = postList.get(position);
         holder.setItem(post);
+        SharedPreferences pref = mContext.getSharedPreferences("myData", Context.MODE_PRIVATE);
+        String authorization = pref.getString("token", "");
+        holder.itemView.setOnClickListener(v-> { // holder 가 내가 만든 홀더기때매 itemView 접근 가능
+            Log.d(TAG, "onBindViewHolder: 클릭됨 : " + post.getId());
+
+            Call<CMRespDTO> data = postController.findById(post.getId(), authorization);
+            data.enqueue(new Callback<CMRespDTO>() {
+                @Override
+                public void onResponse(Call<CMRespDTO> call, Response<CMRespDTO> response) {
+                    if(response.body().getCode() == 1){
+                        Gson gson = new Gson();
+                        Post postData = gson.fromJson(gson.toJson(response.body().getData()), Post.class);
+                        Intent intent = new Intent(mContext, PostDetailActivity.class);
+                        intent.putExtra("post", postData);
+                        mContext.startActivity(intent);
+                    }
+
+
+                }
+
+                @Override
+                public void onFailure(Call<CMRespDTO> call, Throwable t) {
+                    MyToast.toast(mContext, "잘못된 접근");
+                }
+            });
+
+        });
 
     }
 
@@ -53,19 +100,17 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder> 
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder{
-        private TextView tvTitle, tvTime, tvWriter;
+        private TextView tvTitle, tvWriter;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
 
             tvTitle = itemView.findViewById(R.id.tvTitle);
-            tvTime = itemView.findViewById(R.id.tvTime);
             tvWriter = itemView.findViewById(R.id.tvWriter);
         }
 
         public void setItem(Post post){
             tvTitle.setText(post.getTitle());
-            tvTime.setText(post.getUpdated().toString());
             tvWriter.setText(post.getUser().getUsername());
 
         }

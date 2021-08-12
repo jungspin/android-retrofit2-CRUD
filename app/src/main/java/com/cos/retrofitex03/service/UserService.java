@@ -3,6 +3,8 @@ package com.cos.retrofitex03.service;
 import com.cos.retrofitex03.controller.CMRespDTO;
 import com.cos.retrofitex03.controller.LoginDTO;
 import com.cos.retrofitex03.model.User;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.List;
 
@@ -26,8 +28,9 @@ public interface UserService {
     @GET("user/{id}")
     Call<CMRespDTO> findById(@Header("Authorization")String authorization);
 
+
     Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl("http://172.30.1.41:8080/")
+            .baseUrl("http://172.30.1.24:8080/")
             .addConverterFactory(GsonConverterFactory.create())
             .build();
 

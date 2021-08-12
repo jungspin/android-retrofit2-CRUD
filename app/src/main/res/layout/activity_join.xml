@@ -71,6 +71,16 @@
         android:layout_gravity="center"
         android:gravity="center"/>
 
+    <TextView
+        android:id="@+id/tvLogin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:textSize="18dp"
+        android:text="Login"
+        android:gravity="center"
+        android:textColor="@android:color/holo_blue_light"/>
+
 
 
 

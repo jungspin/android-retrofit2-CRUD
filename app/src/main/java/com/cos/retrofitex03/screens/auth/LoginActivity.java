@@ -74,6 +74,7 @@ public class LoginActivity extends AppCompatActivity implements InitSettings {
             String username = tfUsername.getText().toString();
             String password = tfPassword.getText().toString();
 
+
             // 공백있을 시 로그인 불가
             if (username.equals("") || password.equals("")){
                 MyToast myToast = new MyToast();
@@ -83,6 +84,7 @@ public class LoginActivity extends AppCompatActivity implements InitSettings {
             cm.enqueue(new Callback<CMRespDTO>() {
                 @Override
                 public void onResponse(Call<CMRespDTO> call, Response<CMRespDTO> response) {
+                    Log.d(TAG, "onResponse: response : " + response.body().getCode());
 
                     if (response.body().getCode() == 1){
                         String token = response.headers().get("Authorization");
@@ -98,15 +100,13 @@ public class LoginActivity extends AppCompatActivity implements InitSettings {
 
                         Intent intent = new Intent(mContext, PostListActivity.class);
                         startActivity(intent);
-                    } else {
-                        MyToast myToast = new MyToast();
-                        myToast.toast(mContext, "아이디와 비밀번호를 확인해주세요");
                     }
                 }
 
                 @Override
                 public void onFailure(Call<CMRespDTO> call, Throwable t) {
-                    Log.d(TAG, "onFailure: 통신실패 : " + t.getMessage());
+                    Log.d(TAG, "onFailure: " + t);
+                    MyToast.toast(mContext, "아이디 또는 비밀번호가 일치하지 않습니다");
                 }
             });
         });

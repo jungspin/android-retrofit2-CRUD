@@ -13,10 +13,16 @@
         android:theme="@style/Theme.RetrofitEx03"
         android:usesCleartextTraffic="true">
         <activity android:name=".screens.auth.JoinActivity" />
-        <activity android:name=".screens.user.UserInfoActivity"/>
-        <activity android:name=".screens.post.PostUpdateActivity" />
+        <activity android:name=".screens.user.UserInfoActivity">
+            android:parentActivityName=".screens.post.PostListActivity">
+        </activity>
+        <activity android:name=".screens.post.PostUpdateActivity"
+            android:parentActivityName=".screens.post.PostDetailActivity">
+        </activity>
         <activity android:name=".screens.post.PostListActivity" />
-        <activity android:name=".screens.post.PostDetailActivity" />
+        <activity android:name=".screens.post.PostDetailActivity"
+            android:parentActivityName=".screens.post.PostListActivity">
+        </activity>
         <activity android:name=".screens.post.PostWriteActivity" />
         <activity android:name=".MainActivity" />
         <activity android:name=".screens.auth.LoginActivity" >
