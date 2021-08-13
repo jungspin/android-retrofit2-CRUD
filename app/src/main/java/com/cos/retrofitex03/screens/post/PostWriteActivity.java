@@ -44,7 +44,7 @@ public class PostWriteActivity extends CustomAppBarActivity implements InitSetti
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_write);
 
-        settingToolBar("write", true);
+        settingToolBar("post", true);
         init();
         initLr();
         initSetting();
