@@ -1,7 +1,6 @@
 package com.cos.retrofitex03.helper;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -13,9 +12,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.cos.retrofitex03.R;
-import com.cos.retrofitex03.screens.auth.LoginActivity;
-import com.cos.retrofitex03.screens.post.PostWriteActivity;
-import com.cos.retrofitex03.screens.user.UserInfoActivity;
+import com.cos.retrofitex03.bean.SessionUser;
+import com.cos.retrofitex03.view.auth.LoginActivity;
+import com.cos.retrofitex03.view.post.PostWriteActivity;
+import com.cos.retrofitex03.view.user.UserInfoActivity;
 
 public class CustomAppBarActivity extends AppCompatActivity {
 
@@ -53,12 +53,15 @@ public class CustomAppBarActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.actLogout){
             Log.d(TAG, "onOptionsItemSelected: actLogout");
-            SharedPreferences pref = getSharedPreferences("Mydata", Activity.MODE_PRIVATE);
-            SharedPreferences.Editor editor = pref.edit();
-            editor.clear();
-            editor.commit();
+            SessionUser.token="";
+            SessionUser.user=null;
+//            SharedPreferences pref = getSharedPreferences("Mydata", Activity.MODE_PRIVATE);
+//            SharedPreferences.Editor editor = pref.edit();
+//            editor.clear();
+//            editor.commit();
 
             Intent intent = new Intent(getBaseContext(), LoginActivity.class);
+            finish();
             startActivity(intent);
 
             return true;

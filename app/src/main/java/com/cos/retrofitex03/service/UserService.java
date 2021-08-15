@@ -19,18 +19,18 @@ import retrofit2.http.Path;
 
 public interface UserService {
 
-    @POST("login")
-    Call<CMRespDTO> findByUsernameAndPassword(@Body LoginDTO loginDTO);
+    @POST("/login")
+    Call<CMRespDTO<User>> findByUsernameAndPassword(@Body LoginDTO loginDTO);
 
-    @POST("join")
+    @POST("/join")
     Call<CMRespDTO> insert(@Body User user);
 
-    @GET("user/{id}")
+    @GET("/user/{id}")
     Call<CMRespDTO> findById(@Header("Authorization")String authorization);
 
 
     Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl("http://10.100.202.65:8080/")
+            .baseUrl("http://172.30.1.8:8080")
             .addConverterFactory(GsonConverterFactory.create())
             .build();
 

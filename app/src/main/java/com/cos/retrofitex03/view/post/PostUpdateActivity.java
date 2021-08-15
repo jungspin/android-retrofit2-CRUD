@@ -1,6 +1,4 @@
-package com.cos.retrofitex03.screens.post;
-
-import androidx.appcompat.app.AppCompatActivity;
+package com.cos.retrofitex03.view.post;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,9 +7,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.cos.retrofitex03.R;
+import com.cos.retrofitex03.bean.SessionUser;
 import com.cos.retrofitex03.controller.CMRespDTO;
 import com.cos.retrofitex03.controller.PostController;
 import com.cos.retrofitex03.helper.CustomAppBarActivity;
@@ -32,7 +30,7 @@ public class PostUpdateActivity extends CustomAppBarActivity implements InitSett
     private static final String TAG = "PostUpdateActivity";
     private Context mContext = PostUpdateActivity.this;
 
-    private PostController postController = new PostController();
+    private PostController postController;
 
     private EditText tfTitle, tfWriter, tfContent;
     private Button btnUpdate;
@@ -47,10 +45,11 @@ public class PostUpdateActivity extends CustomAppBarActivity implements InitSett
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_update);
 
-        settingToolBar("update", true);
+
         init();
         initLr();
         initSetting();
+        initData();
     }
 
     @Override
@@ -64,25 +63,23 @@ public class PostUpdateActivity extends CustomAppBarActivity implements InitSett
     @Override
     public void initLr() {
         btnUpdate.setOnClickListener(v->{
-            Post postData = (Post) getIntent().getSerializableExtra("post");
+            int postId = getIntent().getIntExtra("postId", 0);
+
             String title = tfTitle.getText().toString();
             String content = tfContent.getText().toString();
 
             Post post = Post.builder().title(title).content(content).build();
-            SharedPreferences pref = getSharedPreferences("myData", Context.MODE_PRIVATE);
-            String authorization = pref.getString("token", "");
-            Call<CMRespDTO> data = postController.updateById(postData.getId(), authorization, post);
-            data.enqueue(new Callback<CMRespDTO>() {
+            postController.updateById(postId, SessionUser.token, post).enqueue(new Callback<CMRespDTO<Post>>() {
                 // 왜 자꾸 권한이 없대..? 내가 안써서 권한 없구나..미쳤다 대박
                 @Override
-                public void onResponse(Call<CMRespDTO> call, Response<CMRespDTO> response) {
+                public void onResponse(Call<CMRespDTO<Post>> call, Response<CMRespDTO<Post>> response) {
                     Log.d(TAG, "onResponse: " +response.body());
+                    Post updatedPost = response.body().getData();
                     if (response.body().getCode() == 1){
-                        Gson gson = new Gson();
-                        Type collectionType = new TypeToken<Post>(){}.getType();
-                        Post post = gson.fromJson(gson.toJson(response.body().getData()), collectionType);
+
                         Intent intent = new Intent(mContext, PostDetailActivity.class);
-                        intent.putExtra("post", post);
+                        intent.putExtra("postId", updatedPost.getId());
+                        finish();
                         startActivity(intent);
                     } else {
                         MyToast.toast(mContext, response.body().getMsg());
@@ -90,8 +87,8 @@ public class PostUpdateActivity extends CustomAppBarActivity implements InitSett
                 }
 
                 @Override
-                public void onFailure(Call<CMRespDTO> call, Throwable t) {
-                    Log.d(TAG, "onFailure: ");
+                public void onFailure(Call<CMRespDTO<Post>> call, Throwable t) {
+                    Log.d(TAG, "onFailure: " + t);
                 }
             });
 
@@ -104,15 +101,31 @@ public class PostUpdateActivity extends CustomAppBarActivity implements InitSett
 
     @Override
     public void initSetting() {
-        Post postData = (Post) getIntent().getSerializableExtra("post");
-        tfTitle.setText(postData.getTitle());
-        tfWriter.setText(postData.getUser().getUsername());
-        tfContent.setText(postData.getContent());
-
+        settingToolBar("update", true);
     }
 
     @Override
     public void initData() {
+        int postId = getIntent().getIntExtra("postId", 0);
+        //Log.d(TAG, "initData: " + postId);
+        postController = new PostController();
+        postController.findById(postId, SessionUser.token).enqueue(new Callback<CMRespDTO<Post>>() {
+            @Override
+            public void onResponse(Call<CMRespDTO<Post>> call, Response<CMRespDTO<Post>> response) {
+                Post post = response.body().getData();
+                if (response.body().getCode() == 1){
+                    tfTitle.setText(post.getTitle());
+                    tfWriter.setText(post.getUser().getUsername());
+                    tfContent.setText(post.getContent());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CMRespDTO<Post>> call, Throwable t) {
+                t.printStackTrace();
+                MyToast.toast(mContext, t.getMessage());
+            }
+        });
 
 
     }

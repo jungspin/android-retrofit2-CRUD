@@ -1,6 +1,4 @@
-package com.cos.retrofitex03.screens.post;
-
-import androidx.appcompat.app.AppCompatActivity;
+package com.cos.retrofitex03.view.post;
 
 import android.content.Context;
 import android.content.Intent;
@@ -11,17 +9,18 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.cos.retrofitex03.R;
+import com.cos.retrofitex03.bean.SessionUser;
 import com.cos.retrofitex03.controller.CMRespDTO;
 import com.cos.retrofitex03.controller.PostController;
 import com.cos.retrofitex03.helper.CustomAppBarActivity;
 import com.cos.retrofitex03.model.Post;
 import com.cos.retrofitex03.model.User;
 import com.cos.retrofitex03.util.InitSettings;
+import com.cos.retrofitex03.util.MyToast;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -44,7 +43,7 @@ public class PostWriteActivity extends CustomAppBarActivity implements InitSetti
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_write);
 
-        settingToolBar("post", true);
+
         init();
         initLr();
         initSetting();
@@ -67,29 +66,26 @@ public class PostWriteActivity extends CustomAppBarActivity implements InitSetti
             String content = tfContent.getText().toString();
 
             Post post = Post.builder().title(title).content(content).build();
-            SharedPreferences pref = getSharedPreferences("myData", Context.MODE_PRIVATE);
-            String authorization = pref.getString("token", "");
-            Call<CMRespDTO> data = postController.insert(authorization, post);
-            data.enqueue(new Callback<CMRespDTO>() {
+
+            postController.insert(SessionUser.token, post).enqueue(new Callback<CMRespDTO<Post>>() {
                 @Override
-                public void onResponse(Call<CMRespDTO> call, Response<CMRespDTO> response) {
+                public void onResponse(Call<CMRespDTO<Post>> call, Response<CMRespDTO<Post>> response) {
                     Log.d(TAG, "onResponse: " + response.body());
-                    Gson gson = new Gson();
-                    Type collectionType = new TypeToken<Post>(){}.getType();
-                    Post post = gson.fromJson(gson.toJson(response.body().getData()), collectionType);
-                    Log.d(TAG, "onResponse: " + post.getTitle());
+                    Post writtenPost = response.body().getData();
+                    Log.d(TAG, "onResponse: 결과 : " + writtenPost.getTitle());
+
 
                     Intent intent = new Intent(mContext, PostDetailActivity.class);
-                    intent.putExtra("post", post);
+                    intent.putExtra("postId", writtenPost.getId());
                     startActivity(intent);
                 }
 
                 @Override
-                public void onFailure(Call<CMRespDTO> call, Throwable t) {
+                public void onFailure(Call<CMRespDTO<Post>> call, Throwable t) {
                     Log.d(TAG, "onFailure: " + t);
+                    MyToast.toast(mContext, "통신 실패");
                 }
             });
-
 
         });
 
@@ -97,15 +93,11 @@ public class PostWriteActivity extends CustomAppBarActivity implements InitSetti
 
     @Override
     public void initSetting() {
-        SharedPreferences pref = getSharedPreferences("myData", Context.MODE_PRIVATE);
-        String userInfo = pref.getString("principal", "");
-        Gson gson = new Gson();
-        User principal = gson.fromJson(userInfo, User.class);
-        tfWriter.setText(principal.getUsername());
+        settingToolBar("post", true);
     }
 
     @Override
     public void initData() {
-
+        tfWriter.setText(SessionUser.user.getUsername());
     }
 }

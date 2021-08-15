@@ -9,7 +9,7 @@ public class UserController {
 
     private UserService userService = UserService.service;
 
-    public Call<CMRespDTO> login(LoginDTO loginDTO){
+    public Call<CMRespDTO<User>> login(LoginDTO loginDTO){
         return userService.findByUsernameAndPassword(loginDTO);
     }
 

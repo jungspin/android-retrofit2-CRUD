@@ -1,4 +1,4 @@
-package com.cos.retrofitex03.screens.auth;
+package com.cos.retrofitex03.view.auth;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
